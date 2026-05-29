@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Lead Tracker — Aion & Citroën</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --aion: #00B4D8;
+    --aion-dark: #0077A8;
+    --citroen: #E63946;
+    --citroen-dark: #B02030;
+    --bg: #F4F5F7;
+    --surface: #FFFFFF;
+    --border: #E2E4E9;
+    --text: #1A1D23;
+    --muted: #6B7280;
+    --success: #22C55E;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: var(--shadow);
+  }
+  .header-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo { display: flex; gap: 6px; }
+  .brand-pill {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 3px 10px; border-radius: 20px; text-transform: uppercase;
+  }
+  .pill-aion { background: var(--aion); color: #fff; }
+  .pill-citroen { background: var(--citroen); color: #fff; }
+  .brand-title { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); }
+  .header-meta { font-size: 13px; color: var(--muted); }
+
+  /* ── NAV TABS ── */
+  .nav-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+  .nav-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 0; }
+  .nav-tab {
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+    padding: 14px 20px; border: none; background: none; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+  /* ── MAIN ── */
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  /* ── SECTION ── */
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--text); }
+  .stat-value.aion { color: var(--aion-dark); }
+  .stat-value.citroen { color: var(--citroen-dark); }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .form-header {
+    padding: 1.25rem 1.75rem;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-header-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .form-header h2 { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; }
+  .form-header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .form-body { padding: 1.75rem; }
+
+  /* ── BRAND SELECTOR ── */
+  .brand-selector { display: flex; gap: 12px; margin-bottom: 1.75rem; }
+  .brand-btn {
+    flex: 1; padding: 14px; border-radius: 10px; border: 2px solid var(--border);
+    background: var(--surface); cursor: pointer; transition: all 0.2s;
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .brand-btn .bsub { font-size: 11px; font-weight: 400; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+  .brand-btn:hover { border-color: #C0C3CC; }
+  .brand-btn.selected-aion { border-color: var(--aion); background: #EAF9FD; color: var(--aion-dark); }
+  .brand-btn.selected-aion .bsub { color: var(--aion); }
+  .brand-btn.selected-citroen { border-color: var(--citroen); background: #FDECEA; color: var(--citroen-dark); }
+  .brand-btn.selected-citroen .bsub { color: var(--citroen); }
+
+  /* ── FORM GRID ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 13px; font-weight: 500; color: var(--text); }
+  .field label .req { color: var(--citroen); }
+  .field input, .field select, .field textarea {
+    padding: 10px 13px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+    background: #FAFAFA; transition: border 0.18s, background 0.18s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--aion); background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(0,180,216,0.12);
+  }
+  .field.brand-citroen input:focus, .field.brand-citroen select:focus, .field.brand-citroen textarea:focus {
+    border-color: var(--citroen); box-shadow: 0 0 0 3px rgba(230,57,70,0.10);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; }
+  .span2 { grid-column: span 2; }
+
+  /* ── DIVIDER ── */
+  .form-divider {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+    padding-bottom: 8px; margin: 1.5rem 0 1.1rem; grid-column: span 2;
+  }
+
+  /* ── SUBMIT BTN ── */
+  .btn-submit {
+    width: 100%; padding: 13px; border-radius: 10px; border: none;
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 1.5rem; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-submit.aion { background: var(--aion); color: #fff; }
+  .btn-submit.aion:hover { background: var(--aion-dark); }
+  .btn-submit.citroen { background: var(--citroen); color: #fff; }
+  .btn-submit.citroen:hover { background: var(--citroen-dark); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+    background: #1A1D23; color: #fff; padding: 13px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast .toast-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+  /* ── DATABASE TABLE ── */
+  .db-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.25rem; flex-wrap: gap;
+  }
+  .db-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; }
+  .db-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-action {
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-action:hover { background: var(--bg); border-color: #C0C3CC; }
+  .btn-action.danger { color: var(--citroen); border-color: #f5c0c3; }
+  .btn-action.danger:hover { background: #FDECEA; }
+  .btn-action.primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn-action.primary:hover { background: #333; }
+
+  /* ── FILTERS ── */
+  .filter-row {
+    display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center;
+  }
+  .filter-row input, .filter-row select {
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
+    background: var(--surface); outline: none;
+  }
+  .filter-row input:focus, .filter-row select:focus { border-color: var(--aion); }
+  .filter-row input { min-width: 220px; }
+  .filter-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); }
+  thead { background: #F8F9FB; }
+  th {
+    padding: 11px 14px; text-align: left; font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  td { padding: 11px 14px; border-bottom: 1px solid #F1F2F5; color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAFBFC; }
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge-aion { background: #D0F3FC; color: var(--aion-dark); }
+  .badge-citroen { background: #FDECEA; color: var(--citroen-dark); }
+  .badge-status { padding: 3px 10px; font-size: 11px; border-radius: 20px; }
+  .status-baru { background: #E8F5E9; color: #2E7D32; }
+  .status-followup { background: #FFF8E1; color: #F57F17; }
+  .status-spk { background: #E3F2FD; color: #1565C0; }
+  .status-batal { background: #FCE4EC; color: #880E4F; }
+  .btn-del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 15px; padding: 4px 6px; border-radius: 4px; transition: all 0.15s; }
+  .btn-del:hover { background: #FDECEA; color: var(--citroen); }
+  .empty-state { text-align: center; padding: 3rem; color: var(--muted); }
+  .empty-state .es-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── CHART AREA ── */
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.25rem; box-shadow: var(--shadow);
+  }
+  .chart-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-label { font-size: 13px; min-width: 90px; color: var(--text); }
+  .bar-track { flex: 1; height: 8px; background: #F0F1F4; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .bar-count { font-size: 12px; font-weight: 600; color: var(--muted); min-width: 24px; text-align: right; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 680px) {
+    main { padding: 1rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .span2 { grid-column: span 1; }
+    .form-divider { grid-column: span 1; }
+    .chart-row { grid-template-columns: 1fr; }
+    .brand-selector { flex-direction: column; }
+    header { padding: 0 1rem; }
+    .header-meta { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-logo">
+        <span class="brand-pill pill-aion">AION</span>
+        <span class="brand-pill pill-citroen">CITROËN</span>
+      </div>
+      <span class="brand-title">Sales Lead Tracker</span>
+    </div>
+    <span class="header-meta" id="hdrDate"></span>
+  </div>
+</header>
+
+<div class="nav-bar">
+  <div class="nav-inner">
+    <button class="nav-tab active" onclick="showTab('form')">✏️ Input Lead</button>
+    <button class="nav-tab" onclick="showTab('db')">📋 Database</button>
+    <button class="nav-tab" onclick="showTab('summary')">📊 Ringkasan</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ══ SECTION: INPUT LEAD ══ -->
+  <section class="section visible" id="sec-form">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Lead Hari Ini</div>
+        <div class="stat-value" id="s-today">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Aion — Hari Ini</div>
+        <div class="stat-value aion" id="s-aion">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Citroën — Hari Ini</div>
+        <div class="stat-value citroen" id="s-citroen">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Semua Lead</div>
+        <div class="stat-value" id="s-all">0</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-header-icon" id="formIconBg" style="background:#EAF9FD;">🚗</div>
+        <div>
+          <h2>Form Input Lead Baru</h2>
+          <p>Isi data prospect yang ditemui hari ini</p>
+        </div>
+      </div>
+      <div class="form-body">
+        <!-- Brand Selector -->
+        <div class="brand-selector">
+          <button class="brand-btn" id="btnAion" onclick="selectBrand('aion')">
+            ⚡ AION
+            <span class="bsub">Electric Vehicle</span>
+          </button>
+          <button class="brand-btn" id="btnCitroen" onclick="selectBrand('citroen')">
+            🇫🇷 CITROËN
+            <span class="bsub">French Automotive</span>
+          </button>
+        </div>
+
+        <div class="form-grid" id="mainForm">
+          <div class="form-divider">Data Salesperson</div>
+
+          <div class="field">
+            <label>Nama Sales <span class="req">*</span></label>
+            <input type="text" id="f-sales" placeholder="Nama lengkap salesperson">
+          </div>
+          <div class="field">
+            <label>Tanggal <span class="req">*</span></label>
+            <input type="date" id="f-date">
+          </div>
+          <div class="field">
+            <label>Sumber Lead <span class="req">*</span></label>
+            <select id="f-source">
+              <option value="">-- Pilih sumber --</option>
+              <option>Walk-in Showroom</option>
+              <option>Instagram / Facebook</option>
+              <option>TikTok</option>
+              <option>WhatsApp Blast</option>
+              <option>Referral</option>
+              <option>Event / Pameran</option>
+              <option>Website</option>
+              <option>Cold Call</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Lokasi / Kota</label>
+            <input type="text" id="f-city" placeholder="Kota prospect">
+          </div>
+
+          <div class="form-divider">Data Prospect</div>
+
+          <div class="field">
+            <label>Nama Prospect <span class="req">*</span></label>
+            <input type="text" id="f-name" placeholder="Nama lengkap">
+          </div>
+          <div class="field">
+            <label>No. HP / WA <span class="req">*</span></label>
+            <input type="tel" id="f-phone" placeholder="08xx-xxxx-xxxx">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="f-email" placeholder="email@domain.com">
+          </div>
+          <div class="field">
+            <label>Pekerjaan</label>
+            <input type="text" id="f-job" placeholder="Pekerjaan / profesi">
+          </div>
+
+          <div class="form-divider">Detail Minat</div>
+
+          <div class="field">
+            <label>Model Kendaraan <span class="req">*</span></label>
+            <select id="f-model">
+              <option value="">-- Pilih model --</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Budget Estimasi</label>
+            <select id="f-budget">
+              <option value="">-- Pilih budget --</option>
+              <option>Di bawah Rp 200 juta</option>
+              <option>Rp 200 – 400 juta</option>
+              <option>Rp 400 – 600 juta</option>
+              <option>Rp 600 – 800 juta</option>
+              <option>Di atas Rp 800 juta</option>
+              <option>Belum tahu</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Status Lead</label>
+            <select id="f-status">
+              <option value="Baru">🟢 Baru</option>
+              <option value="Follow Up">🟡 Follow Up</option>
+              <option value="Proses SPK">🔵 Proses SPK</option>
+              <option value="Batal">🔴 Batal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Jadwal Follow Up</label>
+            <input type="date" id="f-followup">
+          </div>
+          <div class="field span2">
+            <label>Catatan</label>
+            <textarea id="f-notes" placeholder="Minat kendaraan, preferensi warna, rencana kredit/cash, pertanyaan khusus, dll..."></textarea>
+          </div>
+        </div>
+
+        <button class="btn-submit aion" id="submitBtn" onclick="submitLead()" disabled>
+          <span id="submitIcon">➕</span> Simpan Lead
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION: DATABASE ══ -->
+  <section class="section" id="sec-db">
+    <div class="db-header">
+      <div class="db-title">Database Lead</div>
+      <div class="db-actions">
+        <button class="btn-action primary" onclick="downloadCSV()">⬇️ Download CSV</button>
+        <button class="btn-action danger" onclick="clearAll()">🗑️ Hapus Semua</button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <span class="filter-label">Filter:</span>
+      <input type="text" id="filterSearch" placeholder="Cari nama, HP, model..." oninput="renderTable()">
+      <select id="filterBrand" onchange="renderTable()">
+        <option value="">Semua Brand</option>
+        <option>Aion</option>
+        <option>Citroën</option>
+      </select>
+      <select id="filterStatus" onchange="renderTable()">
+        <option value="">Semua Status</option>
+        <option>Baru</option>
+        <option>Follow Up</option>
+        <option>Proses SPK</option>
+        <option>Batal</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tanggal</th>
+            <th>Brand</th>
+            <th>Sales</th>
+            <th>Prospect</th>
+            <th>No. HP</th>
+            <th>Model</th>
+            <th>Sumber</th>
+            <th>Status</th>
+            <th>Follow Up</th>
+            <th>Catatan</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div id="emptyState" class="empty-state" style="display:none">
+      <div class="es-icon">📭</div>
+      <p>Belum ada data lead. Mulai input dari tab "Input Lead".</p>
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-top:10px;" id="tableCount"></div>
+  </section>
+
+  <!-- ══ SECTION: SUMMARY ══ -->
+  <section class="section" id="sec-summary">
+    <div class="stats-row" id="summaryStats"></div>
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>Lead per Brand</h3>
+        <div id="chartBrand"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Lead per Status</h3>
+        <div id="chartStatus"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Sumber Lead</h3>
+        <div id="chartSource"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Top Salesperson</h3>
+        <div id="chartSales"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast">
+  <div class="toast-icon">✓</div>
+  <span id="toastMsg">Lead berhasil disimpan!</span>
+</div>
+
+<script>
+// ── DATA ──
+const AION_MODELS = ['Aion Y','Aion Y Plus','Aion S','Aion S Plus','Aion V','Aion LX Plus','Aion Hyper GT','Aion Hyper HT'];
+const CITROEN_MODELS = ['C3 Aircross','C5 Aircross','Berlingo','C3','ë-C3','SpaceTourer','Jumpy','Jumper'];
+
+let leads = JSON.parse(localStorage.getItem('salesLeads') || '[]');
+let selectedBrand = null;
+
+function save() { localStorage.setItem('salesLeads', JSON.stringify(leads)); }
+
+// ── INIT ──
+window.onload = () => {
+  const now = new Date();
+  document.getElementById('hdrDate').textContent = now.toLocaleDateString('id-ID', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('f-date').value = now.toISOString().split('T')[0];
+  updateStats();
+};
+
+// ── BRAND SELECT ──
+function selectBrand(b) {
+  selectedBrand = b;
+  document.getElementById('btnAion').className = 'brand-btn' + (b === 'aion' ? ' selected-aion' : '');
+  document.getElementById('btnCitroen').className = 'brand-btn' + (b === 'citroen' ? ' selected-citroen' : '');
+  document.getElementById('formIconBg').style.background = b === 'aion' ? '#EAF9FD' : '#FDECEA';
+  document.getElementById('formIconBg').textContent = b === 'aion' ? '⚡' : '🇫🇷';
+
+  const modelSel = document.getElementById('f-model');
+  const models = b === 'aion' ? AION_MODELS : CITROEN_MODELS;
+  modelSel.innerHTML = '<option value="">-- Pilih model --</option>' + models.map(m => `<option>${m}</option>`).join('');
+
+  const btn = document.getElementById('submitBtn');
+  btn.className = `btn-submit ${b}`;
+  btn.disabled = false;
+
+  document.querySelectorAll('.field').forEach(f => {
+    f.classList.toggle('brand-citroen', b === 'citroen');
+  });
+}
+
+// ── SUBMIT ──
+function submitLead() {
+  const req = ['f-sales','f-date','f-source','f-name','f-phone','f-model'];
+  let ok = true;
+  req.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.style.borderColor = '#E63946'; ok = false; }
+    else el.style.borderColor = '';
+  });
+  if (!selectedBrand) { showToast('⚠️ Pilih brand terlebih dahulu!'); return; }
+  if (!ok) { showToast('⚠️ Lengkapi field yang wajib diisi!'); return; }
+
+  const lead = {
+    id: Date.now(),
+    tanggal: document.getElementById('f-date').value,
+    brand: selectedBrand === 'aion' ? 'Aion' : 'Citroën',
+    sales: document.getElementById('f-sales').value.trim(),
+    nama: document.getElementById('f-name').value.trim(),
+    hp: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    pekerjaan: document.getElementById('f-job').value.trim(),
+    kota: document.getElementById('f-city').value.trim(),
+    model: document.getElementById('f-model').value,
+    budget: document.getElementById('f-budget').value,
+    status: document.getElementById('f-status').value,
+    followup: document.getElementById('f-followup').value,
+    sumber: document.getElementById('f-source').value,
+    catatan: document.getElementById('f-notes').value.trim(),
+  };
+
+  leads.unshift(lead);
+  save();
+  resetForm();
+  updateStats();
+  showToast(`✅ Lead ${lead.nama} (${lead.brand}) berhasil disimpan!`);
+}
+
+function resetForm() {
+  ['f-sales','f-name','f-phone','f-email','f-job','f-city','f-followup','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-model').innerHTML = '<option value="">-- Pilih model --</option>';
+  document.getElementById('f-budget').value = '';
+  document.getElementById('f-status').value = 'Baru';
+  document.getElementById('f-source').value = '';
+  const now = new Date();
+  document.getElementById('f-date').value = now.toISOString().split('T')[0];
+  selectedBrand = null;
+  document.getElementById('btnAion').className = 'brand-btn';
+  document.getElementById('btnCitroen').className = 'brand-btn';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').className = 'btn-submit aion';
+  document.getElementById('formIconBg').textContent = '🚗';
+  document.getElementById('formIconBg').style.background = '#EAF9FD';
+}
+
+// ── STATS ──
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayLeads = leads.filter(l => l.tanggal === today);
+  document.getElementById('s-today').textContent = todayLeads.length;
+  document.getElementById('s-aion').textContent = todayLeads.filter(l => l.brand === 'Aion').length;
+  document.getElementById('s-citroen').textContent = todayLeads.filter(l => l.brand === 'Citroën').length;
+  document.getElementById('s-all').textContent = leads.length;
+}
+
+// ── TABLE ──
+function renderTable() {
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+  const brand = document.getElementById('filterBrand').value;
+  const status = document.getElementById('filterStatus').value;
+
+  let filtered = leads.filter(l => {
+    const matchSearch = !search || [l.nama,l.hp,l.model,l.sales,l.kota].some(v => v && v.toLowerCase().includes(search));
+    const matchBrand = !brand || l.brand === brand;
+    const matchStatus = !status || l.status === status;
+    return matchSearch && matchBrand && matchStatus;
+  });
+
+  const body = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+  document.getElementById('tableCount').textContent = `Menampilkan ${filtered.length} dari ${leads.length} lead`;
+
+  if (filtered.length === 0) {
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  body.innerHTML = filtered.map((l, i) => {
+    const statusClass = {'Baru':'status-baru','Follow Up':'status-followup','Proses SPK':'status-spk','Batal':'status-batal'}[l.status] || 'status-baru';
+    const brandClass = l.brand === 'Aion' ? 'badge-aion' : 'badge-citroen';
+    const date = l.tanggal ? new Date(l.tanggal).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '-';
+    const fu = l.followup ? new Date(l.followup).toLocaleDateString('id-ID',{day:'numeric',month:'short'}) : '-';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td style="white-space:nowrap;font-size:12px">${date}</td>
+      <td><span class="badge ${brandClass}">${l.brand}</span></td>
+      <td style="font-size:13px">${l.sales}</td>
+      <td style="font-weight:500">${l.nama}</td>
+      <td style="font-size:12px;color:var(--muted)">${l.hp}</td>
+      <td style="font-size:12px">${l.model}</td>
+      <td style="font-size:12px;color:var(--muted)">${l.sumber||'-'}</td>
+      <td><span class="badge badge-status ${statusClass}">${l.status}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${fu}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.catatan}">${l.catatan||'-'}</td>
+      <td><button class="btn-del" onclick="deleteLead(${l.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteLead(id) {
+  if (!confirm('Hapus lead ini?')) return;
+  leads = leads.filter(l => l.id !== id);
+  save(); updateStats(); renderTable(); renderSummary();
+}
+
+function clearAll() {
+  if (!confirm('Hapus SEMUA data lead? Tindakan ini tidak bisa dibatalkan.')) return;
+  leads = [];
+  save(); updateStats(); renderTable(); renderSummary();
+}
+
+// ── CSV ──
+function downloadCSV() {
+  if (leads.length === 0) { showToast('⚠️ Tidak ada data untuk didownload'); return; }
+  const cols = ['Tanggal','Brand','Sales','Nama Prospect','No HP','Email','Pekerjaan','Kota','Model','Budget','Sumber Lead','Status','Follow Up','Catatan'];
+  const rows = leads.map(l => [
+    l.tanggal, l.brand, l.sales, l.nama, l.hp, l.email, l.pekerjaan, l.kota,
+    l.model, l.budget, l.sumber, l.status, l.followup, l.catatan
+  ].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+
+  const csv = '\uFEFF' + [cols.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date().toISOString().split('T')[0];
+  a.href = url; a.download = `leads_aion_citroen_${d}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast('✅ Database berhasil didownload!');
+}
+
+// ── SUMMARY ──
+function renderSummary() {
+  const total = leads.length;
+  const aionCount = leads.filter(l => l.brand === 'Aion').length;
+  const citroenCount = leads.filter(l => l.brand === 'Citroën').length;
+  const spkCount = leads.filter(l => l.status === 'Proses SPK').length;
+
+  document.getElementById('summaryStats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Lead</div><div class="stat-value">${total}</div></div>
+    <div class="stat-card"><div class="stat-label">Aion</div><div class="stat-value aion">${aionCount}</div></div>
+    <div class="stat-card"><div class="stat-label">Citroën</div><div class="stat-value citroen">${citroenCount}</div></div>
+    <div class="stat-card"><div class="stat-label">Proses SPK</div><div class="stat-value">${spkCount}</div></div>
+  `;
+
+  // Chart brand
+  renderBarChart('chartBrand', [
+    {label:'Aion', count:aionCount, color:'var(--aion)'},
+    {label:'Citroën', count:citroenCount, color:'var(--citroen)'},
+  ], total);
+
+  // Chart status
+  const statuses = ['Baru','Follow Up','Proses SPK','Batal'];
+  const statusColors = {'Baru':'#22C55E','Follow Up':'#F59E0B','Proses SPK':'#3B82F6','Batal':'#EF4444'};
+  renderBarChart('chartStatus', statuses.map(s => ({
+    label: s, count: leads.filter(l => l.status === s).length, color: statusColors[s]
+  })), total);
+
+  // Chart source
+  const srcMap = {};
+  leads.forEach(l => { if (l.sumber) srcMap[l.sumber] = (srcMap[l.sumber]||0)+1; });
+  const sources = Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  renderBarChart('chartSource', sources.map(([label,count]) => ({label,count,color:'var(--aion-dark)'})), total);
+
+  // Chart sales
+  const salesMap = {};
+  leads.forEach(l => { if (l.sales) salesMap[l.sales] = (salesMap[l.sales]||0)+1; });
+  const salesArr = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  renderBarChart('chartSales', salesArr.map(([label,count]) => ({label,count,color:'#7C3AED'})), total);
+}
+
+function renderBarChart(id, data, total) {
+  const el = document.getElementById(id);
+  if (!data.length) { el.innerHTML = '<p style="color:var(--muted);font-size:13px;">Belum ada data</p>'; return; }
+  el.innerHTML = data.map(d => `
+    <div class="bar-row">
+      <span class="bar-label" style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100px" title="${d.label}">${d.label}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${total?Math.round(d.count/total*100):0}%;background:${d.color}"></div>
+      </div>
+      <span class="bar-count">${d.count}</span>
+    </div>
+  `).join('');
+}
+
+// ── NAV ──
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('visible');
+  event.target.classList.add('active');
+  if (tab === 'db') renderTable();
+  if (tab === 'summary') renderSummary();
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
